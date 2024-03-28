@@ -97,28 +97,9 @@ public class App extends WebSocketServer {
 
     // search for a game needing a player
     Game G = null;
-    for (Game i : ActiveGames) {
-      if (i.Players == uta.cse3310.PlayerType.XPLAYER) {
-        G = i;
-        System.out.println("found a match");
-      }
-    }
+    
 
     // No matches ? Create a new Game.
-    if (G == null) {
-      G = new Game(stats);
-      G.GameId = GameId;
-      GameId++;
-      // Add the first player
-      G.Players = PlayerType.XPLAYER;
-      ActiveGames.add(G);
-      System.out.println(" creating a new Game");
-    } else {
-      // join an existing game
-      System.out.println(" not a new game");
-      G.Players = PlayerType.OPLAYER;
-      G.StartGame();
-    }
 
     // create an event to go to only the new player
     E.YouAre = G.Players;
@@ -224,14 +205,14 @@ public class App extends WebSocketServer {
   public static void main(String[] args) {
 
     // Set up the http server
-    int port = 9080;
+    int port = 9880;
     HttpServer H = new HttpServer(port, "./html");
     H.start();
     System.out.println("http Server started on port: " + port);
 
     // create and start the websocket server
 
-    port = 9880;
+    port = 9080;
     App A = new App(port);
     A.setReuseAddr(true);
     A.start();
