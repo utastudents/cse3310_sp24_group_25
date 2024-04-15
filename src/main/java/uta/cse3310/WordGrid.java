@@ -15,22 +15,24 @@ public class WordGrid {
     public String words[] = new String[51];
 
     public WordGrid(int gridChoice) throws FileNotFoundException, IOException {
+        String fName = new String();
         if (gridChoice == 1){
-            FileReader grid1 = new FileReader("grid1.txt");     //not sure if this is the path
-            BufferedReader br = new BufferedReader(grid1);
-            for(int y = 0; y <= 25; y++){
-                for(int x = 0; x <= 25; x++){
+            fName = "grid1.txt";
+        }
+        FileReader gridFile = new FileReader(fName);     //not sure if this is the path
+        BufferedReader br = new BufferedReader(gridFile);
+        for(int y = 0; y <= 25; y++){
+            for(int x = 0; x <= 25; x++){
                     grid[y][x] = (char)br.read();         //grabing grid
                     br.skip(1);                     //skip space
-                }
-            }
-
-            br.skip(1);                             //skip spacer line
-            for(int x = 0; x <= 50; x++){
-                words[x] = br.readLine();           //grabing word list
             }
         }
-    }
+
+        br.skip(1);                             //skip spacer line
+        for(int x = 0; x <= 50; x++){
+                words[x] = br.readLine();           //grabing word list
+        }
+        }
 
     public boolean CheckWord(WordSelection a) {
         boolean tf = false;
