@@ -18,6 +18,23 @@ public class WordGrid {
         String fName = new String();
         if (gridChoice == 1){
             fName = "grid1.txt";
+            totalWords = 50;
+        }
+        if (gridChoice == 2){
+            fName = "grid2.txt";
+            totalWords = 50;
+        }
+        if (gridChoice == 3){
+            fName = "grid3.txt";
+            totalWords = 20;
+        }
+        if (gridChoice == 4){
+            fName = "grid4.txt";
+            totalWords = 40;
+        }
+        if (gridChoice == 5){
+            fName = "grid5.txt";
+            totalWords = 30;
         }
         FileReader gridFile = new FileReader(fName);     //not sure if this is the path
         BufferedReader br = new BufferedReader(gridFile);
@@ -29,7 +46,7 @@ public class WordGrid {
         }
 
         br.skip(1);                             //skip spacer line
-        for(int x = 0; x <= 50; x++){
+        for(int x = 0; x <= totalWords; x++){
                 words[x] = br.readLine();           //grabing word list
         }
         }
@@ -56,7 +73,7 @@ public class WordGrid {
             }
         }
 
-        for(int w = 0; w <= 50; w++){               //go through the words array ingnore case and compare
+        for(int w = 0; w <= totalWords; w++){               //go through the words array ingnore case and compare
                 if(words[w].equalsIgnoreCase(s.toString())){tf = true;}
             }
 
