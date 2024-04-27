@@ -2,7 +2,8 @@ package uta.cse3310;
 
 import java.io.File;
 import java.io.*;
-//XSolis
+//Assigned to XSolis
+
 
 public class WordGrid {
     public int length = 25;
