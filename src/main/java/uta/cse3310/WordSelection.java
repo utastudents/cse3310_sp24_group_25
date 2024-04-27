@@ -1,5 +1,7 @@
 package uta.cse3310;
 
+//Assigned to Alejandro O
+
 public class WordSelection 
 {
     public int xOne = 0;
