@@ -2,7 +2,6 @@ package uta.cse3310;
 
 import java.io.File;
 import java.io.*;
-//import java.stringbuilder??
 //XSolis
 
 public class WordGrid {
@@ -54,20 +53,20 @@ public class WordGrid {
     public boolean CheckWord(WordSelection a) {
         boolean tf = false;
         StringBuilder s = new StringBuilder();
-        if(a.x1 == a.x2){                           //vertical word
-            for(int y = a.y1; y <= a.y2; y++){
-                s.append(grid[y][a.x1]);
+        if(a.xOne == a.xTwo){                           //vertical word
+            for(int y = a.yOne; y <= a.yTwo; y++){
+                s.append(grid[y][a.xOne]);
             }
             
         }
-        else if (a.y1 == a.y2){                     //horizontal word
-            for(int x = a.x1; x <= a.x2; x++){
-                s.append(grid[a.y1][x]);
+        else if (a.yOne == a.yTwo){                     //horizontal word
+            for(int x = a.xOne; x <= a.xTwo; x++){
+                s.append(grid[a.yOne][x]);
             }
         }
         else{                                       //diagonal word
-            int x = a.x1;
-            for(int y = a.y1; y <= a.y2; y++){
+            int x = a.xOne;
+            for(int y = a.yOne; y <= a.yTwo; y++){
                 s.append(grid[y][x]);
                 x++;
             }

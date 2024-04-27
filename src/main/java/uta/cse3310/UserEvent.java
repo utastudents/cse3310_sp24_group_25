@@ -5,7 +5,7 @@ package uta.cse3310;
 public class UserEvent {
     int GameId; // the game ID on the server
     PlayerType PlayerIdx; // either PLayer 1, 2, 3, or 4
-    WordSelection selection = new WordSelection(0,0,0,0);//Word Selected
+    WordSelection selection = new WordSelection(0,0,0,0,0,0,0,0);//Word Selected
 
 
     UserEvent(int _GameId, PlayerType _PlayerIdx, WordSelection _selection) {
