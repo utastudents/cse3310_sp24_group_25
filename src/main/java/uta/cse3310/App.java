@@ -2,10 +2,7 @@ package uta.cse3310;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Vector;
+import java.util.*;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.drafts.Draft;
@@ -51,19 +48,48 @@ public class App extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         System.out.println(conn + ": " + message);
-
         JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
+        String messageType = jsonObject.get("type").getAsString();
 
-        if (jsonObject.has("type") && jsonObject.get("type").getAsString().equals("username")) {
-            String Username = jsonObject.get("name").getAsString();
-            userdata.put(conn.getRemoteSocketAddress().toString(), Username);
-            System.out.println("Username received and stored: " + Username);
-            broadcastUserList();
-            conn.send(new Gson().toJson(new Message("userListUpdate", new ArrayList<>(userdata.values()))));
-        } else {
-            // Handle game-related messages here
+        switch (messageType) {
+            case "username":
+                String username = jsonObject.get("name").getAsString();
+                userdata.put(conn.getRemoteSocketAddress().toString(), username);
+                System.out.println("Username received and stored: " + username);
+                // Remove the individual send as the broadcast will include the new user as well
+                broadcastUserList(); // This will send the updated list to all users
+                break;
+            case "play_game":
+                handleGameStart(conn, jsonObject);
+                break;
+            // Additional cases for other message types like 'game_action', 'chat_message', etc.
+            default:
+                System.out.println("Received unknown message type: " + messageType);
+                break;
         }
     }
+
+    private void handleGameStart(WebSocket conn, JsonObject jsonObject) {
+        String username = jsonObject.get("name").getAsString();  // Assuming the username is part of the message
+        if (ActiveGames.size() < 5) {
+            Statistics gameStats = new Statistics();
+            int newGameId = ActiveGames.size() + 1;
+            Game game = new Game(newGameId, gameStats);
+            ActiveGames.add(game);
+
+            Player newPlayer = new Player(username, conn);  // Create a new player with the extracted name and WebSocket connection
+            game.addPlayer(PlayerType.PLAYER1, newPlayer);  // Assume PlayerType.PLAYER1 is correct, adjust as necessary
+
+            // Notify player that the game has started
+            conn.send(new Gson().toJson(new Message("game_start", "Your game has started.")));
+        } else {
+            // Notify player that no more games can be started
+            conn.send(new Gson().toJson(new Message("error", "Maximum number of games reached.")));
+        }
+    }
+
+
+
 
     @Override
     public void onMessage(WebSocket conn, ByteBuffer message) {
@@ -86,19 +112,29 @@ public class App extends WebSocketServer {
 
     private void broadcastUserList() {
         Gson gson = new GsonBuilder().create();
-        String userListJson = gson.toJson(new ArrayList<>(userdata.values()));
-        broadcast(userListJson);
+        String userListJson = gson.toJson(new Message("user_list_update", new ArrayList<>(userdata.values())));
+        broadcast(userListJson); // This should broadcast to all connected users
     }
+
 
     public class Message {
         private String type;
-        private ArrayList<String> users;
+        private List<String> users;  // Using List instead of ArrayList directly for flexibility
 
-        public Message(String type, ArrayList<String> users) {
+        // Constructor for messages with user lists
+        public Message(String type, List<String> users) {
             this.type = type;
             this.users = users;
         }
+
+        // Overloaded constructor for simple messages
+        public Message(String type, String message) {
+            this.type = type;
+            this.users = new ArrayList<>();
+            this.users.add(message);  // Wrap the single message in a list
+        }
     }
+
 
     public static void main(String[] args) {
         // Set up the HTTP server

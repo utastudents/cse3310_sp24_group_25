@@ -38,50 +38,31 @@
             list-style: none;
             padding-left: 0;
         }
-        .players-list li {
+        .players-list li, .chat-messages li {
             padding: 5px;
             border-bottom: 1px solid #ddd;
         }
-        .chat-messages li {
-            margin-bottom: 5px;
-        }
         .chat-input {
-            width: 100%;
-            padding: 10px;
+            display: flex;
             margin-top: 10px;
-            border: 1px solid #ddd;
             border-radius: 5px;
+        }
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-right: none;
+            border-radius: 5px 0 0 5px;
         }
         .chat-input button {
             padding: 10px 20px;
-            margin-left: 10px;
-        }
-        .username {
-            display: flex;
-            align-items: center;
-        }
-        .username:before {
-            content: '';
-            display: inline-block;
-            height: 10px;
-            width: 10px;
-            background-color: green;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-        .button-group {
-            text-align: center;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 5px;
             background-color: #3498db;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 0 5px 5px 0;
             cursor: pointer;
         }
-        button:hover {
+        .chat-input button:hover {
             background-color: #2980b9;
         }
         #loginSection {
@@ -92,21 +73,11 @@
             width: 300px;
             margin: auto;
         }
-        #loginSection label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-        #loginSection input {
+        #loginSection label, #loginSection input, #loginSection button {
             width: 100%;
-            padding: 10px;
             margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
         }
         #loginSection button {
-            width: 100%;
-            padding: 10px;
             background-color: #0056b3;
             color: white;
             border: none;
@@ -120,55 +91,80 @@
             display: none;
             margin-top: 20px;
         }
+        .word-search-container {
+            display: grid;
+            grid-template-columns: repeat(25, 1fr); /* 25 columns with equal width */
+            gap: 2px; /* Gap between grid cells */
+        }
+
+        .word-grid {
+            border-collapse: collapse;
+        }
+
+        .word-grid td {
+            width: 30px; /* Adjust width as needed */
+            height: 30px; /* Adjust height as needed */
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+
+
+
+
+
+
     </style>
 </head>
 <body>
-    <div id="loginSection">
-        <h1 style="text-align: center;">TWSG</h1>
-        <label for="username">Please enter Name:</label>
-        <input type="text" id="username" name="username" style="padding-right: 0px;">
-        <button onclick="startGame()">Enter</button>
+<div id="loginSection">
+    <h1>TWSG</h1>
+    <label for="username">Please enter Name:</label>
+    <input type="text" id="username" name="username">
+    <button onclick="startGame()">Enter</button>
+</div>
+<div id="lobbySection" style="display:none;">
+    <div class="section">
+        <div class="section-header">TWSG Leaderboard</div>
+        <ul class="players-list">
+            <!-- Players list will be dynamically inserted here -->
+        </ul>
     </div>
-    <div id="lobbySection" style="display:none;">
-        <div class="section">
-            <div class="section-header">TWSG Leaderboard</div>
-            <ul class="players-list">
-                <!-- Players list will be dynamically inserted here -->
-            </ul>
-        </div>
-        <div class="section">
-            <div class="section-header">Waiting Players</div>
-            <ul class="players-list" id="waitingPlayers">
-                <!-- Player list will be dynamically inserted here -->
-            </ul>
-        </div>
-        <div class="mode">
-            <span>username</span>
-            <button onclick="playGame()">Play With 2 Players</button>
-        </div>
-        <div class="section">
-            <div class="section-header">Chat</div>
-            <ul class="chat-messages">
-                <!-- Chat messages will go here -->
-            </ul>
-            <div class="chat-input">
-                <input type="text" placeholder="Type your message...">
-                <button>Send</button>
-            </div
-        </div>
+    <div class="section">
+        <div class="section-header">Waiting Players</div>
+        <ul class="players-list" id="waitingPlayers">
+            <!-- Player list will be dynamically inserted here -->
+        </ul>
     </div>
-    <div id="gameSection" style="display:none;">
-        <div class="word-search-container">
-            <div class="title">TWSG</div>
-            <div class="timer">:30</div>
-            <div class="word-search">
-                <!-- Game grid will go here -->
-            </div>
-            <div class="score">score1</div>
-            <!-- Include additional game elements as needed -->
+    <div class="mode">
+        <span>username</span>
+        <button onclick="playGame()">Play With 2 Players</button>
+    </div>
+    <div class="section">
+        <div class="section-header">Chat</div>
+        <ul class="chat-messages">
+            <!-- Chat messages will go here -->
+        </ul>
+        <div class="chat-input">
+            <input type="text" placeholder="Type your message...">
+            <button>Send</button>
         </div>
     </div>
-    <script>
+</div>
+<div id="gameSection" style="display:none;">
+    <div class="word-search-container">
+        <div class="title">TWSG</div>
+        <div class="timer">:30</div>
+        <div class="word-search">
+            <!-- Grid rows and cells will go here -->
+        </div>
+        <div class="score">score1</div>
+        <!-- Include additional game elements as needed -->
+    </div>
+</div>
+
+<script>
+        var connection; // Define connection globally to ensure accessibility
         function switchView(view) {
             const views = {
                 login: () => {
@@ -187,7 +183,6 @@
                     document.getElementById('gameSection').style.display = 'block';
                 }
             };
-
             if (views[view]) {
                 views[view]();
             } else {
@@ -207,27 +202,22 @@
 
         function connectWebSocket(username) {
             var serverUrl = "ws://" + window.location.hostname + ":9880";
-            var connection = new WebSocket(serverUrl);
-
+            connection = new WebSocket(serverUrl);
             connection.onopen = function (evt) {
                 console.log("Connection opened.");
                 connection.send(JSON.stringify({type: 'username', name: username}));
             };
-
             connection.onmessage = function (evt) {
                 var data = JSON.parse(evt.data);
-                if (Array.isArray(data)) { // Check if the incoming message is an array (user list)
-                    updateUserList(data);
-                    switchView('lobby');
-                } else {
-                    console.log("Message received: " + evt.data);
+                if (data.type === 'user_list_update') {
+                    updateUserList(data.users);
+                } else if (data.type === 'game_start') {
+                    setupGame();
+                    switchView('game');
+                } else if (data.type === 'error') {
+                    alert(data.message);
                 }
             };
-
-            connection.onclose = function (evt) {
-                console.log("Connection closed.");
-            };
-
             connection.onerror = function (evt) {
                 console.error("WebSocket error observed:", evt);
             };
@@ -236,22 +226,26 @@
         function updateUserList(users) {
             var waitingPlayersList = document.getElementById('waitingPlayers');
             waitingPlayersList.innerHTML = ''; // Clear existing list items
-
             users.forEach(function(user) {
                 var li = document.createElement('li');
-                li.textContent = user; // Assuming 'user' is a string. Adjust if 'user' is an object.
+                li.textContent = user; // Make sure 'user' is just the username, not an object
                 waitingPlayersList.appendChild(li);
             });
         }
 
         function playGame() {
-            switchView('game');
+            var username = document.getElementById('username').value;
+            if (username && connection) {
+                var playGameMessage = JSON.stringify({type: 'play_game', name: username});
+                connection.send(playGameMessage);
+            } else {
+                alert("Please enter a username and ensure the WebSocket connection is established!");
+            }
         }
 
         function setupGame() {
             generateWordGrid();  // Generates the word grid as part of game setup
             initializeGameSettings();  // Any additional initialization needed for the game
-            // Add more setup tasks here
         }
 
         function generateWordGrid() {
@@ -259,14 +253,32 @@
             const wordSearchContainer = document.querySelector('.word-search');
             wordSearchContainer.innerHTML = ''; // Clear existing grid if any
 
+            console.log("Generating word grid...");
+
+            // Create table element
+            const table = document.createElement('table');
+            table.classList.add('word-grid');
+
+            // Create rows and cells dynamically
             for (let i = 0; i < gridSize; i++) {
+                const row = document.createElement('tr');
                 for (let j = 0; j < gridSize; j++) {
-                    const cell = document.createElement('div');
+                    const cell = document.createElement('td');
                     cell.textContent = getRandomLetter(); // Fill each cell with a random letter
-                    wordSearchContainer.appendChild(cell);
+                    row.appendChild(cell);
                 }
+                table.appendChild(row);
             }
+
+            wordSearchContainer.appendChild(table);
+
+            console.log("Word grid generation complete.");
         }
+
+
+
+
+
 
         function getRandomLetter() {
             const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
