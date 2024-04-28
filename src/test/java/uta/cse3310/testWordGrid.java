@@ -36,7 +36,6 @@ public class testWordGrid
             catch (FileNotFoundException e)
             {
                 System.out.println("File Not Found");
-                assertTrue(true);
             }
             
         }
