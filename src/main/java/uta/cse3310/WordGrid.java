@@ -17,23 +17,23 @@ public class WordGrid {
     public WordGrid(int gridChoice) throws FileNotFoundException, IOException {
         String fName = new String();
         if (gridChoice == 1){
-            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/grid1.txt";
+            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/txt/grid1.txt";
             totalWords = 50;
         }
         if (gridChoice == 2){
-            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/grid2.txt";
+            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/txt/grid2.txt";
             totalWords = 50;
         }
         if (gridChoice == 3){
-            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/grid3.txt";
+            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/txt/grid3.txt";
             totalWords = 20;
         }
         if (gridChoice == 4){
-            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/grid4.txt";
+            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/txt/grid4.txt";
             totalWords = 40;
         }
         if (gridChoice == 5){
-            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/grid5.txt";
+            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/txt/grid5.txt";
             totalWords = 30;
         }
         try{
