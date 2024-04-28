@@ -1,54 +1,282 @@
-<head>
-    <meta charset="utf-8">
-</head>
-
-<body>
-    <form id="nameForm">
-        <input type="text" id="nameInput" placeholder="Enter your name" required>
-        <input type="submit" value="Enter Lobby">
-    </form>
-
-    <script>
-        document.getElementById('nameForm').onsubmit = function(event) {
-            event.preventDefault();
-            const playerName = document.getElementById('nameInput').value;
-            // use WebSocket to send the name
-            // Assume function sendNameToServer exists and redirects to lobby on success
-            sendNameToServer(playerName);
-        };
-    </script>
-</body>
-</html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Game Lobby</title>
+    <title>TWSG Entrance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #ecf0f1;
+        }
+        #lobby {
+            width: 80%;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .section-header {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        .players-list, .chat-messages {
+            list-style: none;
+            padding-left: 0;
+        }
+        .players-list li {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+        .chat-messages li {
+            margin-bottom: 5px;
+        }
+        .chat-input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            margin-left: 10px;
+        }
+        .username {
+            display: flex;
+            align-items: center;
+        }
+        .username:before {
+            content: '';
+            display: inline-block;
+            height: 10px;
+            width: 10px;
+            background-color: green;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .button-group {
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #loginSection {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            width: 300px;
+            margin: auto;
+        }
+        #loginSection label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        #loginSection input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #loginSection button {
+            width: 100%;
+            padding: 10px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #loginSection button:hover {
+            background-color: #003d82;
+        }
+        #userList {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Waiting for players...</h2>
-    <div id="playerList">
-        <!-- Dynamically updated list of players will go here -->
+    <div id="loginSection">
+        <h1>TWSG</h1>
+        <label for="username">Please enter Name:</label>
+        <input type="text" id="username" name="username">
+        <button onclick="startGame()">Enter</button>
     </div>
-
+    <div id="lobbySection" style="display:none;">
+        <div class="section">
+            <div class="section-header">TWSG Leaderboard</div>
+            <ul class="players-list">
+                <!-- Players list will be dynamically inserted here -->
+            </ul>
+        </div>
+        <div class="section">
+            <div class="section-header">Waiting Players</div>
+            <ul class="players-list" id="waitingPlayers">
+                <!-- Player list will be dynamically inserted here -->
+            </ul>
+        </div>
+        <div class="mode">
+            <span>username</span>
+            <button onclick="playGame()">Play With 2 Players</button>
+        </div>
+        <div class="section">
+            <div class="section-header">Chat</div>
+            <ul class="chat-messages">
+                <!-- Chat messages will go here -->
+            </ul>
+            <div class="chat-input">
+                <input type="text" placeholder="Type your message...">
+                <button>Send</button>
+            </div
+        </div>
+    </div>
+    <div id="gameSection" style="display:none;">
+        <div class="word-search-container">
+            <div class="title">TWSG</div>
+            <div class="timer">:30</div>
+            <div class="word-search">
+                <!-- Game grid will go here -->
+            </div>
+            <div class="score">score1</div>
+            <!-- Include additional game elements as needed -->
+        </div>
+    </div>
     <script>
-        // Assume WebSocket connection code exists here and updates the player list
+        function switchView(view) {
+            const views = {
+                login: () => {
+                    document.getElementById('loginSection').style.display = 'block';
+                    document.getElementById('lobbySection').style.display = 'none';
+                    document.getElementById('gameSection').style.display = 'none';
+                },
+                lobby: () => {
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('lobbySection').style.display = 'block';
+                    document.getElementById('gameSection').style.display = 'none';
+                },
+                game: () => {
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('lobbySection').style.display = 'none';
+                    document.getElementById('gameSection').style.display = 'block';
+                }
+            };
+
+            if (views[view]) {
+                views[view]();
+            } else {
+                console.error('Invalid view');
+            }
+        }
+
+        function startGame() {
+            var username = document.getElementById('username').value;
+            if (username) {
+                switchView('lobby');
+                connectWebSocket(username);
+            } else {
+                alert("Please enter a username to start playing!");
+            }
+        }
+
+        function connectWebSocket(username) {
+            var serverUrl = "ws://" + window.location.hostname + ":9880";
+            var connection = new WebSocket(serverUrl);
+
+            connection.onopen = function (evt) {
+                console.log("Connection opened.");
+                connection.send(JSON.stringify({type: 'username', name: username}));
+            };
+
+            connection.onmessage = function (evt) {
+                var data = JSON.parse(evt.data);
+                if (Array.isArray(data)) { // Check if the incoming message is an array (user list)
+                    updateUserList(data);
+                    switchView('lobby');
+                } else {
+                    console.log("Message received: " + evt.data);
+                }
+            };
+
+            connection.onclose = function (evt) {
+                console.log("Connection closed.");
+            };
+
+            connection.onerror = function (evt) {
+                console.error("WebSocket error observed:", evt);
+            };
+        }
+
+        function updateUserList(users) {
+            var waitingPlayersList = document.getElementById('waitingPlayers');
+            waitingPlayersList.innerHTML = ''; // Clear existing list items
+
+            users.forEach(function(user) {
+                var li = document.createElement('li');
+                li.textContent = user; // Assuming 'user' is a string. Adjust if 'user' is an object.
+                waitingPlayersList.appendChild(li);
+            });
+        }
+
+        function playGame() {
+            switchView('game');
+        }
+
+        function setupGame() {
+            generateWordGrid();  // Generates the word grid as part of game setup
+            initializeGameSettings();  // Any additional initialization needed for the game
+            // Add more setup tasks here
+        }
+
+        function generateWordGrid() {
+            const gridSize = 25; // Set the grid size to 25x25
+            const wordSearchContainer = document.querySelector('.word-search');
+            wordSearchContainer.innerHTML = ''; // Clear existing grid if any
+
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    const cell = document.createElement('div');
+                    cell.textContent = getRandomLetter(); // Fill each cell with a random letter
+                    wordSearchContainer.appendChild(cell);
+                }
+            }
+        }
+
+        function getRandomLetter() {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            return alphabet[Math.floor(Math.random() * alphabet.length)];
+        }
+
+        function initializeGameSettings() {
+            // Initialize timer, scores, or other game elements
+            console.log('Game settings initialized');
+        }
     </script>
 </body>
 </html>
-
-<script>
-    var connection = null;
-
-    var serverUrl;
-    serverUrl = "ws://" + window.location.hostname + ":9880";
-    // Create the connection with the server
-    connection = new WebSocket(serverUrl);
-
-    connection.onopen = function (evt) {
-        console.log("open");
-    }
-    connection.onclose = function (evt) {
-        console.log("close");
-        document.getElementById("topMessage").innerHTML = "Server Offline"
-    }
-</script>
