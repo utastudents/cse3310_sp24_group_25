@@ -4,6 +4,8 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Vector;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.drafts.Draft;
@@ -18,7 +20,7 @@ import com.google.gson.JsonParser;
 
 public class App extends WebSocketServer {
     Vector<Game> ActiveGames = new Vector<>();
-    HashMap<String, String> userdata = new HashMap<>();  
+    HashMap<String, String> userdata = new HashMap<>();
     HashMap<WebSocket, String> userConnections = new HashMap<>();
     
     public App(int port) {
