@@ -1,6 +1,5 @@
 package uta.cse3310;
 
-import java.io.File;
 import java.io.*;
 //Assigned to XSolis
 
@@ -36,6 +35,7 @@ public class WordGrid {
             fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/txt/grid5.txt";
             totalWords = 30;
         }
+
         try{
             FileReader gridFile = new FileReader(fName);     //not sure if this is the path
             BufferedReader br = new BufferedReader(gridFile);
@@ -50,6 +50,7 @@ public class WordGrid {
             for(int x = 0; x <= totalWords; x++){
                     words[x] = br.readLine();           //grabing word list
             }
+            br.close();
         }
         catch (FileNotFoundException ex){
             System.out.println("File not found");
