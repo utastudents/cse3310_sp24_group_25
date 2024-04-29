@@ -1,14 +1,17 @@
 package uta.cse3310;
 
-//import org.junit.Test;
-//import static org.junit.Assert.assertEquals;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-public class WordSelectionTest 
+public class WordSelectionTest extends TestCase
 {
 
     //@Test
     public void testCompareCoordinates() 
-    {/*
+    {
         WordSelection ws = new WordSelection(1, 2, 3, 4, 1, 2, 3, 4);
         boolean result = ws.compareCoordinates();
         assertEquals(true, result);
@@ -23,6 +26,6 @@ public class WordSelectionTest
 
         WordSelection ws4 = new WordSelection(1, 2, 3, 4, 5, 6, 1, 2);
         boolean result4 = ws4.compareCoordinates();
-        assertEquals(false, result4);*/
+        assertEquals(false, result4);
     }
 }
