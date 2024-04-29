@@ -3,6 +3,6 @@ package uta.cse3310;
 //Assigned to Muhammad Elzein
 
 public enum PlayerType {
-    NOPLAYER, PLayer1, Player2, Player3, PLayer4
+    NOPLAYER, PLAYER1, PLAYER2, PLAYER3, PLAYER4
 }
  

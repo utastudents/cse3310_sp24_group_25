@@ -1,16 +1,28 @@
 package uta.cse3310;
-// User events are sent from the webpage to the server
-//Assigned to XSolis
+
+import java.util.List;
 
 public class UserEvent {
-    int GameId; // the game ID on the server
-    PlayerType PlayerIdx; // either PLayer 1, 2, 3, or 4
-    WordSelection selection = new WordSelection(0,0,0,0,0,0,0,0);//Word Selected
+    private EventType type;
+    private PlayerType playerType;
+    private List<Integer> wordCoordinates;
 
+    public UserEvent(EventType type, PlayerType playerType, List<Integer> wordCoordinates) {
+        this.type = type;
+        this.playerType = playerType;
+        this.wordCoordinates = wordCoordinates;
+    }
 
-    UserEvent(int _GameId, PlayerType _PlayerIdx, WordSelection _selection) {
-        GameId = _GameId;
-        PlayerIdx = _PlayerIdx;
-        selection = _selection; 
+    public EventType getType() {
+        return type;
+    }
+
+    public PlayerType getPlayerType() {
+        return playerType;
+    }
+
+    public List<Integer> getWordCoordinates() {
+        return wordCoordinates;
     }
 }
+

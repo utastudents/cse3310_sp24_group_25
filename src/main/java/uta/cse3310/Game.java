@@ -1,59 +1,99 @@
 package uta.cse3310;
-//Assigned to Muhammad Elzein
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 public class Game {
 
+    private HashMap<PlayerType, Player> players; // Maps player types to player objects
+    private PlayerType currentTurn; // Tracks whose turn it is
+    private int gameId;
+    private List<List<Character>> gameBoard; // Represents the game board as a list of lists of characters
+    private boolean isGameOver;
+    private Statistics stats; // Class to manage game statistics
 
-
-
-    PlayerType Players;
-    public PlayerType CurrentTurn;
-    public PlayerType winState;
-    public PlayerType[] Button;
-    // Buttons are indexed 0 to 8 in the code
-    // 0 1 2
-    // 3 4 5
-    // 6 7 8
-
-    public String[] Msg;
-    public int GameId;
-    public Statistics Stats;
-    
-
-    Game(Statistics s) {
-        
+    public Game(int gameId, Statistics stats) {
+        this.gameId = gameId;
+        this.stats = stats;
+        this.players = new HashMap<>();
+        this.isGameOver = false;
+        initializeBoard();
     }
 
-    public void PrintGame() {
-    
+    // Initialize the game board with random letters or from a predefined set
+    private void initializeBoard() {
+        gameBoard = new ArrayList<>();
+        // Example initialization, this should be replaced with actual logic to generate the board
+        for (int i = 0; i < 10; i++) { // Assuming a 10x10 grid
+            List<Character> row = new ArrayList<>();
+            for (int j = 0; j < 10; j++) {
+                row.add((char) ('A' + Math.random() * 26)); // Random letters
+            }
+            gameBoard.add(row);
+        }
     }
 
-    public void SetBoard(PlayerType p, int[] b) {
-        
+    public void addPlayer(PlayerType playerType, Player player) {
+        if (!players.containsKey(playerType) && players.size() < 4) { // Limiting to 4 players
+            players.put(playerType, player);
+        }
     }
 
-    public void StartGame() {
-        
+    public void startGame() {
+        if (players.size() >= 2) { // Minimum two players to start the game
+            currentTurn = PlayerType.PLAYER1; // Starting with PLAYER1
+        } else {
+            System.out.println("Not enough players to start the game.");
+        }
     }
 
-    public boolean CheckDraw(PlayerType player) {
-        return false;
+    public void update(UserEvent event) {
+        if (!isGameOver) {
+            // Example event handling: player tries to select a word on the board
+            if (event.getType() == EventType.SELECT_WORD && currentTurn == event.getPlayerType()) {
+                if (validateSelection(event.getWordCoordinates())) {
+                    stats.updateScore(players.get(currentTurn), calculateScore(event.getWordCoordinates()));
+                    advanceTurn();
+                }
+            }
+        }
     }
 
-    // This function returns an index for each player
-    // It does not depend on the representation of Enums
-    public int PlayerToIdx(PlayerType P) {
-        return 0;
+    private boolean validateSelection(List<Integer> coordinates) {
+        // Validation logic to check if the selected word is correct
+        return true; // Placeholder
     }
 
-    public void Update(UserEvent U) {
-        
+    private int calculateScore(List<Integer> coordinates) {
+        // Score calculation based on the word length or other criteria
+        return coordinates.size(); // Placeholder
     }
 
-    public void Tick() {
-        // this function can be called periodically if a
-        // timer is needed.
+    private void advanceTurn() {
+        // Advance to the next player's turn
+        currentTurn = PlayerType.values()[(currentTurn.ordinal() + 1) % players.size()];
+    }
 
+    public void tick() {
+        // This method could handle timed aspects of the game, like a countdown timer
+    }
+
+    public boolean isGameOver() {
+        return isGameOver;
+    }
+
+    // Utility method to format and print the game board, for debugging or game updates
+    public void printGame() {
+        for (List<Character> row : gameBoard) {
+            for (char c : row) {
+                System.out.print(c + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    public int getGameId() {
+        return gameId;
     }
 }
-// In windows, shift-alt-F formats the source code
-// In linux, it is ctrl-shift-I

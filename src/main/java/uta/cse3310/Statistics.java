@@ -1,30 +1,42 @@
 package uta.cse3310;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Statistics {
-    // this class stores global statistics of the
-    // program
-    private Long RunningTime;
-    private Integer GamesInProgress;
+    private Long runningTime;
+    private Integer gamesInProgress;
+    private Map<Player, Integer> playerScores; // Map to store scores for each player
 
     public Statistics() {
-        RunningTime = 0L;
-        GamesInProgress = 0;
+        this.runningTime = 0L;
+        this.gamesInProgress = 0;
+        this.playerScores = new HashMap<>();
     }
 
     public Long getRunningTime() {
-        return RunningTime;
+        return runningTime;
     }
 
     public void setRunningTime(Long runningTime) {
-        RunningTime = runningTime;
+        this.runningTime = runningTime;
     }
 
     public Integer getGamesInProgress() {
-        return GamesInProgress;
+        return gamesInProgress;
     }
 
     public void setGamesInProgress(Integer gamesInProgress) {
-        GamesInProgress = gamesInProgress;
+        this.gamesInProgress = gamesInProgress;
     }
 
+    // Method to update the score for a player
+    public void updateScore(Player player, int scoreToAdd) {
+        this.playerScores.merge(player, scoreToAdd, Integer::sum); // Use merge to handle null keys safely
+    }
+
+    // Method to get the score for a player
+    public Integer getScore(Player player) {
+        return this.playerScores.getOrDefault(player, 0);
+    }
 }

@@ -17,39 +17,44 @@ public class WordGrid {
     public WordGrid(int gridChoice) throws FileNotFoundException, IOException {
         String fName = new String();
         if (gridChoice == 1){
-            fName = "grid1.txt";
+            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/txt/grid1.txt";
             totalWords = 50;
         }
         if (gridChoice == 2){
-            fName = "grid2.txt";
+            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/txt/grid2.txt";
             totalWords = 50;
         }
         if (gridChoice == 3){
-            fName = "grid3.txt";
+            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/txt/grid3.txt";
             totalWords = 20;
         }
         if (gridChoice == 4){
-            fName = "grid4.txt";
+            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/txt/grid4.txt";
             totalWords = 40;
         }
         if (gridChoice == 5){
-            fName = "grid5.txt";
+            fName = "cse3310_sp24_group_25/src/main/java/uta/cse3310/txt/grid5.txt";
             totalWords = 30;
         }
-        FileReader gridFile = new FileReader(fName);     //not sure if this is the path
-        BufferedReader br = new BufferedReader(gridFile);
-        for(int y = 0; y <= 25; y++){
-            for(int x = 0; x <= 25; x++){
-                    grid[y][x] = (char)br.read();         //grabing grid
-                    br.skip(1);                     //skip space
+        try{
+            FileReader gridFile = new FileReader(fName);     //not sure if this is the path
+            BufferedReader br = new BufferedReader(gridFile);
+            for(int y = 0; y <= 25; y++){
+                for(int x = 0; x <= 25; x++){
+                        grid[y][x] = (char)br.read();         //grabing grid
+                        br.skip(1);                     //skip space
+                }
+            }
+
+            br.skip(1);                             //skip spacer line
+            for(int x = 0; x <= totalWords; x++){
+                    words[x] = br.readLine();           //grabing word list
             }
         }
-
-        br.skip(1);                             //skip spacer line
-        for(int x = 0; x <= totalWords; x++){
-                words[x] = br.readLine();           //grabing word list
+        catch (FileNotFoundException ex){
+            System.out.println("File not found");
         }
-        }
+    }
 
     public boolean CheckWord(WordSelection a) {
         boolean tf = false;
