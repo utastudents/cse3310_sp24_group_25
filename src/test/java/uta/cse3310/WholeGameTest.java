@@ -49,7 +49,7 @@ public class WholeGameTest
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
         UserEvent U = gson.fromJson(msg, UserEvent.class);
-        G.Update(U);
+        G.update(U);
         String jsonString = gson.toJson(G);
         return jsonString;
     }
