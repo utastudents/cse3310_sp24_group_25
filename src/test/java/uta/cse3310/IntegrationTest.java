@@ -3,9 +3,9 @@ package uta.cse3310;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.mockito.Mockito;
 
-public class IntegrationTest
-        extends TestCase {
+public class IntegrationTest extends TestCase {
     /**
      * Create the test case
      *
@@ -22,17 +22,21 @@ public class IntegrationTest
         return new TestSuite(IntegrationTest.class);
     }
 
-    //////////////////////////////////////////////////////////////////////
-    // These are integration tests / component tests.
-    // Notice how they call methods directly. In the system tests, the
-    // data in and out is json strings.
-    //
-    // (the program is very small, it is hard to differentiate between an
-    // integration / component test and a system level test)
-    //////////////////////////////////////////////////////////////////////
-
+    /**
+     * Test a single game by simulating interactions and verifying the outcomes.
+     * @param G Game to test
+     */
     public void singleGame(Game G) {
+        // Assume that Game has methods like `addPlayer` and `startGame`
+        Player player = Mockito.mock(Player.class);
+        Mockito.when(player.getName()).thenReturn("Test Player");
 
+        G.addPlayer(PlayerType.PLAYER1, player);
+        G.startGame();
+
+        // Assuming Game has a method to check if it's started correctly
+        assertTrue("Game should be started", G.isGameStarted());
+        assertEquals("Game should have exactly one player", 1, G.getNumberOfPlayers());
     }
 
     public void testOneGame() {
@@ -41,9 +45,6 @@ public class IntegrationTest
     }
 
     public void testTwoGames() {
-        // this test does not do much,
-        // but it seemed like something to
-        // write quickly.
         Game G0 = new Game(0, new Statistics());
         Game G1 = new Game(1, new Statistics());
         singleGame(G0);

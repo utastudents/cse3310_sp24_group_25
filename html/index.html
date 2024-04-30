@@ -108,12 +108,6 @@
             text-align: center;
         }
 
-
-
-
-
-
-
     </style>
 </head>
 <body>
@@ -146,8 +140,8 @@
             <!-- Chat messages will go here -->
         </ul>
         <div class="chat-input">
-            <input type="text" placeholder="Type your message...">
-            <button>Send</button>
+            <input type="text" id="chatMessage" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
         </div>
     </div>
 </div>
@@ -164,131 +158,135 @@
 </div>
 
 <script>
-        var connection; // Define connection globally to ensure accessibility
-        function switchView(view) {
-            const views = {
-                login: () => {
-                    document.getElementById('loginSection').style.display = 'block';
-                    document.getElementById('lobbySection').style.display = 'none';
-                    document.getElementById('gameSection').style.display = 'none';
-                },
-                lobby: () => {
-                    document.getElementById('loginSection').style.display = 'none';
-                    document.getElementById('lobbySection').style.display = 'block';
-                    document.getElementById('gameSection').style.display = 'none';
-                },
-                game: () => {
-                    document.getElementById('loginSection').style.display = 'none';
-                    document.getElementById('lobbySection').style.display = 'none';
-                    document.getElementById('gameSection').style.display = 'block';
-                }
-            };
-            if (views[view]) {
-                views[view]();
-            } else {
-                console.error('Invalid view');
+    var connection; // Define connection globally to ensure accessibility
+    function switchView(view) {
+        const views = {
+            login: () => {
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('lobbySection').style.display = 'none';
+                document.getElementById('gameSection').style.display = 'none';
+            },
+            lobby: () => {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('lobbySection').style.display = 'block';
+                document.getElementById('gameSection').style.display = 'none';
+            },
+            game: () => {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('lobbySection').style.display = 'none';
+                document.getElementById('gameSection').style.display = 'block';
             }
+        };
+        if (views[view]) {
+            views[view]();
+        } else {
+            console.error('Invalid view');
         }
+    }
 
-        function startGame() {
-            var username = document.getElementById('username').value;
-            if (username) {
-                switchView('lobby');
-                connectWebSocket(username);
-            } else {
-                alert("Please enter a username to start playing!");
+    function startGame() {
+        var username = document.getElementById('username').value;
+        if (username) {
+            switchView('lobby');
+            connectWebSocket(username);
+        } else {
+            alert("Please enter a username to start playing!");
+        }
+    }
+
+    function connectWebSocket(username) {
+        var serverUrl = "ws://" + window.location.hostname + ":9125";
+        connection = new WebSocket(serverUrl);
+        connection.onopen = function (evt) {
+            console.log("Connection opened.");
+            connection.send(JSON.stringify({type: 'username', name: username}));
+        };
+        connection.onmessage = function (evt) {
+            var data = JSON.parse(evt.data);
+            if (data.type === 'user_list_update') {
+                updateUserList(data.users);
+            } else if (data.type === 'game_start') {
+                setupGame(data.grid);
+                switchView('game');
+            } else if (data.type === 'chat_message') {
+                // Update the chat area when a message is received
+                var chatMessages = document.querySelector('.chat-messages');
+                var messageElement = document.createElement('li');
+                messageElement.textContent = data.text;
+                chatMessages.appendChild(messageElement);
+            } else if (data.type === 'error') {
+                alert(data.message);
             }
+        };
+    }
+
+    function updateUserList(users) {
+        var waitingPlayersList = document.getElementById('waitingPlayers');
+        waitingPlayersList.innerHTML = ''; // Clear existing list items
+        users.forEach(function(user) {
+            var li = document.createElement('li');
+            li.textContent = user; // Make sure 'user' is just the username, not an object
+            waitingPlayersList.appendChild(li);
+        });
+    }
+
+    function playGame() {
+        var username = document.getElementById('username').value;
+        if (username && connection) {
+            var playGameMessage = JSON.stringify({type: 'play_game', name: username});
+            connection.send(playGameMessage);
+        } else {
+            alert("Please enter a username and ensure the WebSocket connection is established!");
         }
+    }
 
-        function connectWebSocket(username) {
-            var serverUrl = "ws://" + window.location.hostname + ":9125";
-            connection = new WebSocket(serverUrl);
-            connection.onopen = function (evt) {
-                console.log("Connection opened.");
-                connection.send(JSON.stringify({type: 'username', name: username}));
-            };
-            connection.onmessage = function (evt) {
-                var data = JSON.parse(evt.data);
-                if (data.type === 'user_list_update') {
-                    updateUserList(data.users);
-                } else if (data.type === 'game_start') {
-                    setupGame();
-                    switchView('game');
-                } else if (data.type === 'error') {
-                    alert(data.message);
-                }
-            };
-            connection.onerror = function (evt) {
-                console.error("WebSocket error observed:", evt);
-            };
-        }
+    function setupGame(gridData) {
+        const gridLines = gridData.split('\n');
+        generateWordGrid(gridLines);  // Generates the word grid using data from server
+        initializeGameSettings();  // Any additional initialization needed for the game
+    }
 
-        function updateUserList(users) {
-            var waitingPlayersList = document.getElementById('waitingPlayers');
-            waitingPlayersList.innerHTML = ''; // Clear existing list items
-            users.forEach(function(user) {
-                var li = document.createElement('li');
-                li.textContent = user; // Make sure 'user' is just the username, not an object
-                waitingPlayersList.appendChild(li);
-            });
-        }
+    function generateWordGrid(gridLines) {
+        const wordSearchContainer = document.querySelector('.word-search');
+        wordSearchContainer.innerHTML = ''; // Clear existing grid if any
 
-        function playGame() {
-            var username = document.getElementById('username').value;
-            if (username && connection) {
-                var playGameMessage = JSON.stringify({type: 'play_game', name: username});
-                connection.send(playGameMessage);
-            } else {
-                alert("Please enter a username and ensure the WebSocket connection is established!");
-            }
-        }
+        const table = document.createElement('table');
+        table.classList.add('word-grid');
 
-        function setupGame() {
-            generateWordGrid();  // Generates the word grid as part of game setup
-            initializeGameSettings();  // Any additional initialization needed for the game
-        }
-
-        function generateWordGrid() {
-            const gridSize = 25; // Set the grid size to 25x25
-            const wordSearchContainer = document.querySelector('.word-search');
-            wordSearchContainer.innerHTML = ''; // Clear existing grid if any
-
-            console.log("Generating word grid...");
-
-            // Create table element
-            const table = document.createElement('table');
-            table.classList.add('word-grid');
-
-            // Create rows and cells dynamically
-            for (let i = 0; i < gridSize; i++) {
-                const row = document.createElement('tr');
-                for (let j = 0; j < gridSize; j++) {
+        gridLines.forEach(line => {
+            const row = document.createElement('tr');
+            line.trim().split(' ').forEach(letter => {
+                if (letter) {
                     const cell = document.createElement('td');
-                    cell.textContent = getRandomLetter(); // Fill each cell with a random letter
+                    cell.textContent = letter;
                     row.appendChild(cell);
                 }
-                table.appendChild(row);
-            }
+            });
+            table.appendChild(row);
+        });
 
-            wordSearchContainer.appendChild(table);
+        wordSearchContainer.appendChild(table);
+    }
 
-            console.log("Word grid generation complete.");
+    function getRandomLetter() {
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        return alphabet[Math.floor(Math.random() * alphabet.length)];
+    }
+
+    function initializeGameSettings() {
+        // Initialize timer, scores, or other game elements
+        console.log('Game settings initialized');
+    }
+
+    function sendMessage() {
+        var message = document.getElementById('chatMessage').value;
+        if (message) {
+            // Construct the message object to send
+            var msg = JSON.stringify({ type: 'chat_message', text: message });
+            connection.send(msg);  // Send the message to the server via WebSocket
+            document.getElementById('chatMessage').value = ''; // Clear the input after sending
         }
-
-
-
-
-
-
-        function getRandomLetter() {
-            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            return alphabet[Math.floor(Math.random() * alphabet.length)];
-        }
-
-        function initializeGameSettings() {
-            // Initialize timer, scores, or other game elements
-            console.log('Game settings initialized');
-        }
-    </script>
+    }
+</script>
 </body>
 </html>

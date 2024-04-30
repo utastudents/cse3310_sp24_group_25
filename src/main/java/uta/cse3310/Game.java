@@ -12,12 +12,14 @@ public class Game {
     private List<List<Character>> gameBoard; // Represents the game board as a list of lists of characters
     private boolean isGameOver;
     private Statistics stats; // Class to manage game statistics
+    private boolean isGameStarted;
 
     public Game(int gameId, Statistics stats) {
         this.gameId = gameId;
         this.stats = stats;
         this.players = new HashMap<>();
         this.isGameOver = false;
+        this.isGameStarted = false;
         initializeBoard();
     }
 
@@ -96,4 +98,11 @@ public class Game {
     public int getGameId() {
         return gameId;
     }
+    public int getNumberOfPlayers() {
+        return players.size();
+    }
+    public boolean isGameStarted() {
+        return isGameStarted;
+    }
+
 }

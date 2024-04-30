@@ -86,4 +86,17 @@ public class WordGrid {
         return tf;
     }
     // Professor recommended to just check the position of the word in the grid
+    public String getGridAsString() {
+        StringBuilder sb = new StringBuilder();
+        for (int y = 0; y < 26; y++) {
+            for (int x = 0; x < 26; x++) {
+                sb.append(grid[y][x]);
+                if (x < 25) sb.append(" "); // Append space between characters
+            }
+            if (y < 25) sb.append("\n"); // Append newline after each row
+        }
+        return sb.toString();
+    }
+
 }
+

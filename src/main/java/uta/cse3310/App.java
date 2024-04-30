@@ -1,5 +1,7 @@
 package uta.cse3310;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -14,6 +16,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import uta.cse3310.App.Message;
 
 public class App extends WebSocketServer {
     Vector<Game> ActiveGames = new Vector<>();
@@ -47,46 +51,99 @@ public class App extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        System.out.println(conn + ": " + message);
-        JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
-        String messageType = jsonObject.get("type").getAsString();
-
-        switch (messageType) {
-            case "username":
-                String username = jsonObject.get("name").getAsString();
-                userdata.put(conn.getRemoteSocketAddress().toString(), username);
-                System.out.println("Username received and stored: " + username);
-                // Remove the individual send as the broadcast will include the new user as well
-                broadcastUserList(); // This will send the updated list to all users
-                break;
-            case "play_game":
-                handleGameStart(conn, jsonObject);
-                break;
-            // Additional cases for other message types like 'game_action', 'chat_message', etc.
-            default:
-                System.out.println("Received unknown message type: " + messageType);
-                break;
+        try {
+            JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
+            String messageType = jsonObject.has("type") ? jsonObject.get("type").getAsString() : null;
+    
+            if (messageType == null) {
+                throw new IllegalArgumentException("Message type is required");
+            }
+    
+            switch (messageType) {
+                case "username":
+                    handleUsername(conn, jsonObject);
+                    break;
+                case "play_game":
+                    handleGameStart(conn, jsonObject);
+                    break;
+                    case "chat_message":
+                String chat = jsonObject.get("text").getAsString();
+                    broadcastChatMessage(chat);
+                    break;
+                default:
+                    System.out.println("Received unknown message type: " + messageType);
+                    break;
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to handle message: " + e.getMessage());
+            if (conn != null) {
+                conn.send(new Gson().toJson(new Message("error", "Invalid message format")));
+            }
         }
     }
+    private void handleUsername(WebSocket conn, JsonObject jsonObject) {
+        if (!jsonObject.has("name")) {
+            conn.send(new Gson().toJson(new Message("error", "Username is required")));
+            return;
+        }
+    
+        String username = jsonObject.get("name").getAsString().trim();
+    
+        if (username.isEmpty()) {
+            conn.send(new Gson().toJson(new Message("error", "Username cannot be empty")));
+            return;
+        }
+    
+        if (username.contains(" ") || username.length() > 20) {
+            conn.send(new Gson().toJson(new Message("error", "Username must be one word and no more than 20 characters")));
+            return;
+        }
+    
+        // Check if the username is already taken by iterating over the existing user data
+        if (userdata.values().stream().anyMatch(u -> u.equalsIgnoreCase(username))) {
+            conn.send(new Gson().toJson(new Message("error", "Username already taken, please choose another")));
+            return;
+        }
+    
+        // Store the new username linked to the WebSocket's remote socket address
+        String userKey = conn.getRemoteSocketAddress().toString();
+        userdata.put(userKey, username);
+        userConnections.put(conn, username);
+    
+        System.out.println("Username received and stored: " + username);
+    
+        // Notify the new user of successful registration
+        conn.send(new Gson().toJson(new Message("info", "Username accepted: " + username)));
+    
+        // Update all clients with the new list of users
+        broadcastUserList();
+    }
 
-    private void handleGameStart(WebSocket conn, JsonObject jsonObject) {
-        String username = jsonObject.get("name").getAsString();  // Assuming the username is part of the message
+     private void handleGameStart(WebSocket conn, JsonObject jsonObject) throws FileNotFoundException, IOException {
+        String username = jsonObject.get("name").getAsString();
         if (ActiveGames.size() < 5) {
             Statistics gameStats = new Statistics();
             int newGameId = ActiveGames.size() + 1;
             Game game = new Game(newGameId, gameStats);
             ActiveGames.add(game);
 
-            Player newPlayer = new Player(username, conn);  // Create a new player with the extracted name and WebSocket connection
-            game.addPlayer(PlayerType.PLAYER1, newPlayer);  // Assume PlayerType.PLAYER1 is correct, adjust as necessary
+            Player newPlayer = new Player(username, conn);
+            game.addPlayer(PlayerType.PLAYER1, newPlayer);
 
-            // Notify player that the game has started
-            conn.send(new Gson().toJson(new Message("game_start", "Your game has started.")));
+            // Retrieve grid from WordGrid class
+            WordGrid wordGrid = new WordGrid(1); // Example grid choice
+            String gridData = wordGrid.getGridAsString(); // Convert grid to a single string if needed
+
+            JsonObject gridMessage = new JsonObject();
+            gridMessage.addProperty("type", "game_start");
+            gridMessage.addProperty("grid", gridData);
+            conn.send(new Gson().toJson(gridMessage));
         } else {
-            // Notify player that no more games can be started
             conn.send(new Gson().toJson(new Message("error", "Maximum number of games reached.")));
         }
     }
+
+    // Additional methods...
 
 
 
@@ -134,6 +191,12 @@ public class App extends WebSocketServer {
             this.users.add(message);  // Wrap the single message in a list
         }
     }
+    private void broadcastChatMessage(String message) {
+        Gson gson = new GsonBuilder().create();
+        String msgJson = gson.toJson(new Message("chat_message", message));
+        broadcast(msgJson);  // This method sends the message to all connected clients
+    }
+
 
 
     public static void main(String[] args) {
