@@ -201,7 +201,7 @@
         }
 
         function connectWebSocket(username) {
-            var serverUrl = "ws://" + window.location.hostname + ":9880";
+            var serverUrl = "ws://" + window.location.hostname + ":9125";
             connection = new WebSocket(serverUrl);
             connection.onopen = function (evt) {
                 console.log("Connection opened.");
