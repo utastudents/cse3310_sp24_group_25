@@ -44,11 +44,13 @@ public class Game {
 
     public void startGame() {
         if (players.size() >= 2) { // Minimum two players to start the game
-            currentTurn = PlayerType.PLAYER1; // Starting with PLAYER1
+            currentTurn = PlayerType.PLAYER1; // Explicitly start with PLAYER1 or choose based on some logic
+            isGameStarted = true;
         } else {
             System.out.println("Not enough players to start the game.");
         }
     }
+
 
     public void update(UserEvent event) {
         if (!isGameOver) {
@@ -72,9 +74,31 @@ public class Game {
         return coordinates.size(); // Placeholder
     }
 
-    private void advanceTurn() {
-        // Advance to the next player's turn
-        currentTurn = PlayerType.values()[(currentTurn.ordinal() + 1) % players.size()];
+    void advanceTurn() {
+        // Increment the ordinal, wrapping around at the end of the enumeration.
+        int nextOrdinal = (currentTurn.ordinal() + 1) % PlayerType.values().length;
+
+        // Loop until a valid player is found or all possibilities are exhausted.
+        int attempts = 0;
+        while (!players.containsKey(PlayerType.values()[nextOrdinal]) && attempts < PlayerType.values().length) {
+            nextOrdinal = (nextOrdinal + 1) % PlayerType.values().length;
+            attempts++;
+        }
+
+        // Update the current turn only if a valid player was found.
+        if (players.containsKey(PlayerType.values()[nextOrdinal])) {
+            currentTurn = PlayerType.values()[nextOrdinal];
+        } else {
+            // Handle error state if no valid player is found - ideally this should not happen
+            currentTurn = PlayerType.NOPLAYER;
+        }
+    }
+
+
+
+
+    public PlayerType getCurrentTurn() {
+        return currentTurn;
     }
 
     public void tick() {
